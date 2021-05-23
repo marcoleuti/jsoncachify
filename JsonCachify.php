@@ -29,15 +29,21 @@ class JsonCachify
     $filepath = $this->filepath = $this->folder_cache_path . "/" . $this->filename;
 
     try {
-      if (file_exists($filepath)) {
-        $myfile = fopen($filepath, "r") or die("Unable to open file!");
-      } else {
-        $myfile = fopen($filepath, "r");
+      if (!file_exists($filepath)) {
+        // Create new file if not exists
+        $myfile = fopen($filepath, "w");
+        fclose($myfile);
       }
 
+      $myfile = fopen($filepath, "r") or die("Unable to open file!");
+
       // Try to open existing file and convert it to JSON
-      $filestream = fread($myfile, filesize($filepath));
-      $filestream_decoded = json_decode($filestream);
+      if (filesize($filepath) == 0) {
+        $filestream_decoded = false;
+      } else {
+        $filestream = fread($myfile, filesize($filepath));
+        $filestream_decoded = json_decode($filestream);
+      }
 
       // Create empty JSON if file was empty
       if (!$filestream_decoded) {
